@@ -1,19 +1,60 @@
 import React, { useState } from "react";
+import { styled } from '@mui/material/styles';
 import axios from "axios";
 import Picker from "./components/Picker";
 import Recipe from "./components/Recipe";
 import InputText from "./components/InputText";
 import IngredientList from "./components/IngredientList";
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { withStyles } from '@material-ui/core/styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
+import { Container, Button } from "@mui/material";
 
-const styles = theme => ( {
-  root: {
-    color: theme.palette.text.primary,
+const PREFIX = 'App';
+const classes = {
+    container: `${PREFIX}-container`,
+    heading: `${PREFIX}-heading`,
+    ingredient_input: `${PREFIX}-ingredient`,
+    ingredient_list: `${PREFIX}-ingredient-list`,
+    difficulty: `${PREFIX}-difficulty`,
+    cuisine: `${PREFIX}-cuisine`,
+    time: `${PREFIX}-time`,
+    other: `${PREFIX}-other`,
+    recipe: `${PREFIX}-recipe`,
+};
+
+const Root = styled('div')(( { theme }) => ( 
+  {
+    backgroundColor: '#fff',
+    textAlign: 'center',
+  [`& .${PREFIX}-container`] : {
   },
-});
+  [`& .${PREFIX}-heading`] : {
+    marginBottom: theme.spacing(6),
+  },
+  [`& .${PREFIX}-ingredient`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-ingredient-list`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-difficulty`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-cuisine`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-time`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-other`] : {
+    marginBottom: theme.spacing(4),
+  },
+  [`& .${PREFIX}-recipe`] : {
+    marginBottom: theme.spacing(4),
+  },
+}));
 
-function App({classes}) {
+function App() {
   const [otherText, setOtherText] = useState("");
   const [generatedText, setGeneratedText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,21 +91,24 @@ function App({classes}) {
   const removeIngredient = (ingredient) => {
     setIngredients(ingredients.filter((i) => i !== ingredient));
   };
-  return (
-    <div className={classes.root}>
-      <h1>Use Up Your Pantry</h1>
-      <InputText text={""} onSubmit={addIngredient} label="Enter Ingredients" buttonText={"Add Ingredients"}/>
-      <IngredientList ingredients={ingredients} onDelete={removeIngredient} />
-      <Picker items={difficultyOptions} onSelect={setDifficulty} selected={0}/>
-      <Picker items={cuisineOptions} onSelect={setCuisine} selected={0}/>
-      <Picker items={timeOptions} onSelect={setTime} selected={0}/>
-      <InputText text={otherText} onSubmit={generateText} label="Enter extra info" buttonText={"Generate Recipe"}/>
 
-      {loading && <CircularProgress />}
-      {!loading && generatedText && <Recipe text={generatedText} />}
-    </div>
+  return (
+    <Root >
+      <Container className={classes.container} maxWidth="lg">
+        <Typography variant='h1' className={classes.heading}>Pantry Purge</Typography>
+        <InputText text={""} onSubmit={addIngredient} label="Enter Ingredients" buttonText={"Add Ingredient"} className={classes.ingredient_input}/>
+        <IngredientList className={classes.ingredient_list} ingredients={ingredients} onDelete={removeIngredient} />
+        <Picker className={classes.difficulty} items={difficultyOptions} onSelect={setDifficulty} selected={0}/>
+        <Picker className={classes.cuisine} items={cuisineOptions} onSelect={setCuisine} selected={0}/>
+        <Picker className={classes.time} items={timeOptions} onSelect={setTime} selected={0}/>
+        <InputText className={classes.other} text={otherText} onSubmit={generateText} label="Enter extra info" buttonText={"Generate Recipe"}/>
+
+        {loading && <CircularProgress />}
+        {!loading && generatedText && <Recipe className={classes.recipe} text={generatedText} />}
+      </Container>
+    </Root>
   );
 }
 
-export default withStyles(styles)(App);
+export default (App);
 

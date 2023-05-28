@@ -2,33 +2,47 @@
 // as deletable Chips from the material ui library.
 
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { Typography, Grid, Chip } from '@material-ui/core';
+import { Typography, Grid, Chip } from '@mui/material';
 
-const styles = theme => ({
-    root: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+const PREFIX = 'IngredientList';
+
+const classes = {
+    root: `${PREFIX}-root`,
+    chip: `${PREFIX}-chip`,
+    chipLabel: `${PREFIX}-chipLabel`
+};
+
+const StyledGrid = styled(Grid)((
+    {
+        theme
+    }
+) => ({
+    [`&.${classes.root}`]: {
+        // width: '100%',
+        // height: '100%',
+        // display: 'flex',
+        // flexDirection: 'row',
+        // justifyContent: 'flex-start',
+        // alignItems: 'center',
+        // flexWrap: 'wrap',
     },
-    chip: {
-        margin: theme.spacing.unit,
-        color: theme.palette.primary.contrastText,
-        backgroundColor: theme.palette.primary.main,
+
+    [`& .${classes.chip}`]: {
+        // margin: theme.spacing.unit,
+        // color: theme.palette.primary.contrastText,
+        // backgroundColor: theme.palette.primary.main,
     },
-    chipLabel: {
-        color: theme.palette.primary.contrastText,
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        padding: '0.5rem',
-    },
-});
+
+    [`& .${classes.chipLabel}`]: {
+        // color: theme.palette.primary.contrastText,
+        // fontSize: '1.5rem',
+        // fontWeight: 'bold',
+        // textAlign: 'center',
+        // padding: '0.5rem',
+    }
+}));
 
 class IngredientList extends React.Component {
     
@@ -40,9 +54,9 @@ class IngredientList extends React.Component {
         }
     
         render() {
-            const { classes, ingredients, onDelete } = this.props;
+            const {  ingredients, onDelete } = this.props;
             return (
-                <Grid container className={classes.root}>
+                <StyledGrid container className={classes.root}>
                     {ingredients.map((ingredient, index) => (
                         <Grid item key={index}>
                             <Chip
@@ -55,15 +69,14 @@ class IngredientList extends React.Component {
                             />
                         </Grid>
                     ))}
-                </Grid>
+                </StyledGrid>
             );
         }
     }
 
 IngredientList.propTypes = {
-    classes: PropTypes.object.isRequired,
     ingredients: PropTypes.array.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(IngredientList);
+export default (IngredientList);

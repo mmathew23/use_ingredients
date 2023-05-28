@@ -2,49 +2,67 @@
 // The picker is a horizontal selector that highlight the selected item.
 
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { Typography, Grid } from '@material-ui/core';
+import { Typography, Grid, Button, ButtonGroup } from '@mui/material';
 
-const styles = theme => ({
-    root: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
+const PREFIX = 'Picker';
+
+const classes = {
+    item: `${PREFIX}-item`,
+    itemSelected: `${PREFIX}-itemSelected`,
+    itemText: `${PREFIX}-itemText`
+};
+
+const StyledGrid = styled(Grid)((
+    {
+        theme
+    }
+) => ({
+        // width: '100%',
+        // height: '100%',
+        // display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
-    },
-    item: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        cursor: 'pointer',
-        backgroundColor: theme.palette.secondary.main,
+        // alignItems: 'center',
+    [`& .${classes.item}`]: {
+        // width: '100%',
+        // height: '100%',
+        // display: 'flex',
+        // flexDirection: 'column',
+        // justifyContent: 'flex-end',
+        // alignItems: 'center',
+        // cursor: 'pointer',
         '&:hover': {
             backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
         },
     },
-    itemSelected: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
+
+    [`& .${classes.itemSelected}`]: {
+        // width: '100%',
+        // height: '100%',
+        // display: 'flex',
+        // flexDirection: 'column',
+        // justifyContent: 'flex-end',
+        // alignItems: 'center',
         backgroundColor: theme.palette.primary.main,
-    },
-    itemText: {
         color: theme.palette.primary.contrastText,
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        padding: '0.5rem',
+        '&:hover': {
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+        },
     },
-});
+
+    [`& .${classes.itemText}`]: {
+        // color: theme.palette.primary.contrastText,
+        // fontSize: '1.5rem',
+        // fontWeight: 'bold',
+        // textAlign: 'center',
+        padding: '0.5rem',
+        textTransform: 'none',
+    }
+}));
 
 class Picker extends React.Component {
     
@@ -56,29 +74,30 @@ class Picker extends React.Component {
     }
 
     render() {
-        const { classes, items, onSelect } = this.props;
+        const {  items, onSelect, className } = this.props;
         const { selected } = this.state;
         return (
-            <Grid container className={classes.root}>
+            <StyledGrid container className={className} >
+                <ButtonGroup>
                 {items.map((item, index) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={index} className={selected === index ? classes.itemSelected : classes.item} onClick={() => {
+                    <Button key={index} className={selected === index ? classes.itemSelected : classes.item} onClick={() => {
                         this.setState({ selected: index });
                         onSelect(index);
                     }}>
                         <Typography className={classes.itemText}>{item}</Typography>
-                    </Grid>
+                    </Button>
                 ))}
-            </Grid>
+                </ButtonGroup>
+            </StyledGrid>
         );
     }
 }
 
 Picker.propTypes = {
-    classes: PropTypes.object.isRequired,
     items: PropTypes.array.isRequired,
     selected: PropTypes.number.isRequired,
     onSelect: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(Picker);
+export default (Picker);
 
