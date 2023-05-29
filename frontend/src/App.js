@@ -36,33 +36,32 @@ const Root = styled('div')(( { theme }) => (
     minHeight: '100vh',
   },
   [`& .${PREFIX}-heading`] : {
-    marginBottom: theme.spacing(6),
+    margin: theme.spacing(4),
     textAlign: 'center',
   },
   [`& .${PREFIX}-ingredient`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-ingredient-list`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-difficulty`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-cuisine`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-time`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-other`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-recipe`] : {
-    marginBottom: theme.spacing(4),
+    margin: theme.spacing(2),
   },
   [`& .${PREFIX}-generate`] : {
-    marginBottom: theme.spacing(4),
-    textTransform: 'none',
+    margin: theme.spacing(2),
   },
 }));
 
@@ -123,7 +122,7 @@ function App() {
         <Picker className={classes.cuisine} items={cuisineOptions} onSelect={setCuisine} selected={cuisine}/>
         <Picker className={classes.time} items={timeOptions} onSelect={setTime} selected={time}/>
         <InputText className={classes.other} text={otherText} onChange={setOtherText} label="Enter extra info" buttonDisabled noClearOnSubmit onSubmit={generateText} />
-        <Button className={classes.generate} onClick={generateText} variant="contained" color="primary">Generate Recipe</Button>
+        <Button className={classes.generate} onClick={generateText} variant="contained" size="large" color="primary">Generate Recipe</Button>
 
         {loading && <CircularProgress />}
         {!loading && generatedText && <Recipe className={classes.recipe} text={generatedText} />}
