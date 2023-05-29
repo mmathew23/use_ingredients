@@ -9,7 +9,6 @@ import { Typography, Grid, Chip } from '@mui/material';
 const PREFIX = 'IngredientList';
 
 const classes = {
-    root: `${PREFIX}-root`,
     chip: `${PREFIX}-chip`,
     chipLabel: `${PREFIX}-chipLabel`
 };
@@ -19,15 +18,13 @@ const StyledGrid = styled(Grid)((
         theme
     }
 ) => ({
-    [`&.${classes.root}`]: {
         // width: '100%',
         // height: '100%',
-        // display: 'flex',
-        // flexDirection: 'row',
-        // justifyContent: 'flex-start',
-        // alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
         // flexWrap: 'wrap',
-    },
 
     [`& .${classes.chip}`]: {
         // margin: theme.spacing.unit,
@@ -54,9 +51,9 @@ class IngredientList extends React.Component {
         }
     
         render() {
-            const {  ingredients, onDelete } = this.props;
+            const {  ingredients, onDelete, className } = this.props;
             return (
-                <StyledGrid container className={classes.root}>
+                <StyledGrid container className={className} spacing={2}>
                     {ingredients.map((ingredient, index) => (
                         <Grid item key={index}>
                             <Chip
@@ -66,6 +63,7 @@ class IngredientList extends React.Component {
                                 classes={{
                                     label: classes.chipLabel,
                                 }}
+                                color="primary"
                             />
                         </Grid>
                     ))}

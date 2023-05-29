@@ -7,7 +7,7 @@ import InputText from "./components/InputText";
 import IngredientList from "./components/IngredientList";
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
-import { Container, Button } from "@mui/material";
+import { Container, Button, TextField } from "@mui/material";
 
 const PREFIX = 'App';
 const classes = {
@@ -20,16 +20,24 @@ const classes = {
     time: `${PREFIX}-time`,
     other: `${PREFIX}-other`,
     recipe: `${PREFIX}-recipe`,
+    generate: `${PREFIX}-generate`,
 };
 
 const Root = styled('div')(( { theme }) => ( 
   {
     backgroundColor: '#fff',
-    textAlign: 'center',
+    // textAlign: 'center',
+    // textAlign: 'center',
   [`& .${PREFIX}-container`] : {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    minHeight: '100vh',
   },
   [`& .${PREFIX}-heading`] : {
     marginBottom: theme.spacing(6),
+    textAlign: 'center',
   },
   [`& .${PREFIX}-ingredient`] : {
     marginBottom: theme.spacing(4),
@@ -52,6 +60,10 @@ const Root = styled('div')(( { theme }) => (
   [`& .${PREFIX}-recipe`] : {
     marginBottom: theme.spacing(4),
   },
+  [`& .${PREFIX}-generate`] : {
+    marginBottom: theme.spacing(4),
+    textTransform: 'none',
+  },
 }));
 
 function App() {
@@ -59,23 +71,31 @@ function App() {
   const [generatedText, setGeneratedText] = useState("");
   const [loading, setLoading] = useState(false);
   const [ingredients, setIngredients] = useState([]);
-  const [difficulty, setDifficulty] = useState(0);
-  const [cuisine, setCuisine] = useState("American");
-  const [time, setTime] = useState("Quick");
+  const [difficulty, setDifficulty] = useState(-1);
+  const [cuisine, setCuisine] = useState(-1);
+  const [time, setTime] = useState(-1);
   const difficultyOptions = ["Easy", "Medium", "Hard"];
   const cuisineOptions = ["American", "Chinese", "Indian", "Italian", "Mexican", "Thai"];
   const timeOptions = ["Quick", "Medium", "Long"];
+
   const generateText = async () => {
+    const payload = {ingredients: ingredients, otherText: otherText}
+    if (difficulty >= 0) {
+      payload.difficulty = difficultyOptions[difficulty]
+    }
+    if (cuisine >= 0) {
+      payload.cuisine = cuisineOptions[cuisine]
+    }
+    if (time >= 0) {
+      payload.time = timeOptions[time]
+    }
     setLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_GPT_SERVER}/generate`,
-        { ingredients: ingredients, otherText: otherText,
-         difficulty: difficultyOptions[difficulty], cuisine: cuisineOptions[cuisine],
-        time: timeOptions[time] }
+        payload,
       );
       setGeneratedText(response.data.generated_text.choices[0].message.content);
-      console.log(response.data);
     } catch (error) {
       console.error("Error generating text", error);
     }
@@ -83,7 +103,7 @@ function App() {
   };
 
   const addIngredient = (ingredient) => {
-    if (!ingredients.includes(ingredient)) {
+    if (!ingredients.includes(ingredient) && ingredient !== "" ) {
       setIngredients([...ingredients, ingredient]);
     }
   };
@@ -96,12 +116,14 @@ function App() {
     <Root >
       <Container className={classes.container} maxWidth="lg">
         <Typography variant='h1' className={classes.heading}>Pantry Purge</Typography>
-        <InputText text={""} onSubmit={addIngredient} label="Enter Ingredients" buttonText={"Add Ingredient"} className={classes.ingredient_input}/>
-        <IngredientList className={classes.ingredient_list} ingredients={ingredients} onDelete={removeIngredient} />
-        <Picker className={classes.difficulty} items={difficultyOptions} onSelect={setDifficulty} selected={0}/>
-        <Picker className={classes.cuisine} items={cuisineOptions} onSelect={setCuisine} selected={0}/>
-        <Picker className={classes.time} items={timeOptions} onSelect={setTime} selected={0}/>
-        <InputText className={classes.other} text={otherText} onSubmit={generateText} label="Enter extra info" buttonText={"Generate Recipe"}/>
+        <InputText text={""} onSubmit={addIngredient} label="Enter Ingredient" buttonText={"Add Ingredient"} className={classes.ingredient_input}/>
+        { ingredients.length > 0
+         && <IngredientList className={classes.ingredient_list} ingredients={ingredients} onDelete={removeIngredient} />}
+        <Picker className={classes.difficulty} items={difficultyOptions} onSelect={setDifficulty} selected={difficulty}/>
+        <Picker className={classes.cuisine} items={cuisineOptions} onSelect={setCuisine} selected={cuisine}/>
+        <Picker className={classes.time} items={timeOptions} onSelect={setTime} selected={time}/>
+        <InputText className={classes.other} text={otherText} onChange={setOtherText} label="Enter extra info" buttonDisabled noClearOnSubmit onSubmit={generateText} />
+        <Button className={classes.generate} onClick={generateText} variant="contained" color="primary">Generate Recipe</Button>
 
         {loading && <CircularProgress />}
         {!loading && generatedText && <Recipe className={classes.recipe} text={generatedText} />}

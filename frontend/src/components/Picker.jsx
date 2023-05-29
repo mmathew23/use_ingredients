@@ -19,20 +19,10 @@ const StyledGrid = styled(Grid)((
         theme
     }
 ) => ({
-        // width: '100%',
-        // height: '100%',
-        // display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
-        // alignItems: 'center',
     [`& .${classes.item}`]: {
-        // width: '100%',
-        // height: '100%',
-        // display: 'flex',
-        // flexDirection: 'column',
-        // justifyContent: 'flex-end',
-        // alignItems: 'center',
-        // cursor: 'pointer',
+        textTransform: 'none',
         '&:hover': {
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
@@ -40,12 +30,7 @@ const StyledGrid = styled(Grid)((
     },
 
     [`& .${classes.itemSelected}`]: {
-        // width: '100%',
-        // height: '100%',
-        // display: 'flex',
-        // flexDirection: 'column',
-        // justifyContent: 'flex-end',
-        // alignItems: 'center',
+        textTransform: 'none',
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,
         '&:hover': {
@@ -55,10 +40,6 @@ const StyledGrid = styled(Grid)((
     },
 
     [`& .${classes.itemText}`]: {
-        // color: theme.palette.primary.contrastText,
-        // fontSize: '1.5rem',
-        // fontWeight: 'bold',
-        // textAlign: 'center',
         padding: '0.5rem',
         textTransform: 'none',
     }
@@ -74,17 +55,25 @@ class Picker extends React.Component {
     }
 
     render() {
-        const {  items, onSelect, className } = this.props;
+        const {  items, onSelect, className, label } = this.props;
         const { selected } = this.state;
         return (
             <StyledGrid container className={className} >
+                {label && <Typography>{label}</Typography>}
                 <ButtonGroup>
                 {items.map((item, index) => (
                     <Button key={index} className={selected === index ? classes.itemSelected : classes.item} onClick={() => {
-                        this.setState({ selected: index });
-                        onSelect(index);
+                        if (this.state.selected === index) {
+                            this.setState({ selected: -1 });
+                            onSelect(-1);
+                        }
+                        else {
+                            this.setState({ selected: index });
+                            onSelect(index);
+                        }
                     }}>
-                        <Typography className={classes.itemText}>{item}</Typography>
+                        {item}
+                        {false && <Typography className={classes.itemText}>{item}</Typography>}
                     </Button>
                 ))}
                 </ButtonGroup>

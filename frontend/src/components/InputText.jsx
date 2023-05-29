@@ -52,6 +52,7 @@ const StyledStack = styled(Stack)((
         // flexDirection: 'row',
         // justifyContent: 'center',
         // alignItems: 'center',
+        textTransform: 'none',
     },
 
     [`& .${classes.buttonText}`]: {
@@ -74,13 +75,16 @@ class InputText extends React.Component {
         }
     
         handleChange = name => event => {
+            if (this.props.onChange) {
+                this.props.onChange(event.target.value);
+            }
             this.setState({
                 [name]: event.target.value,
             });
         };
     
         render() {
-            const {  label, onSubmit, buttonText, className } = this.props;
+            const {  label, onSubmit, buttonText, className, buttonDisabled } = this.props;
             const { text } = this.state;
             return (
                 <StyledStack direction='column' spacing={1} className={className}>
@@ -89,8 +93,18 @@ class InputText extends React.Component {
                         value={text}
                         onChange={this.handleChange('text')}
                         label={label}
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                onSubmit(text);
+                                if (!this.props.noClearOnSubmit) {
+                                    this.setState({ text: '' });
+                                }
+                            }
+                        }}
+
                     />
-                    <Button
+                    {!buttonDisabled && <Button
+                        className={classes.button}
                         onClick={() => {
                             onSubmit(text);
                             this.setState({ text: '' });
@@ -98,8 +112,9 @@ class InputText extends React.Component {
                         }
                         variant="contained"
                     >
-                        <Typography className={classes.buttonText}>{buttonText}</Typography>
+                        {buttonText}
                     </Button>
+        }
                 </StyledStack>
             );
         }

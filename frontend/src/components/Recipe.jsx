@@ -4,51 +4,52 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { Typography, Grid } from '@mui/material';
+import { Typography, Stack } from '@mui/material';
 
 const PREFIX = 'Recipe';
 
 const classes = {
-    root: `${PREFIX}-root`,
     text: `${PREFIX}-text`
 };
 
-const StyledGrid = styled(Grid)((
+const StyledStack = styled(Stack)((
     {
         theme
     }
 ) => ({
-    [`&.${classes.root}`]: {
-        // width: '100%',
-        // height: '100%',
-        // display: 'flex',
-        // flexDirection: 'column',
-        // justifyContent: 'flex-start',
-        // alignItems: 'center',
-    },
-
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'left',
+        padding: '0.5rem',
+        maxWidth: '700px',
     [`& .${classes.text}`]: {
-        // color: theme.palette.primary.contrastText,
-        // fontSize: '1.5rem',
-        // fontWeight: 'bold',
-        // textAlign: 'center',
-        // padding: '0.5rem',
+        fontSize: '1rem',
+        textAlign: 'left',
     }
 }));
 
 class Text extends React.Component {
     render() {
         const {  text } = this.props;
+        //React Typography Components from classes.text split by newlines
+        const textComponents = text.split('\n').map((line, index) => {
+            return (
+
+                <Typography key={index} className={classes.text}>{line}</Typography>
+            );
+        });
+
         return (
-            <StyledGrid container className={classes.root}>
-                <Typography className={classes.text}>{text}</Typography>
-            </StyledGrid>
+            <StyledStack spacing={1} container className={classes.root}>
+
+                {textComponents}
+            </StyledStack>
         );
     }
 }
 
 Text.propTypes = {
-    classes: PropTypes.object.isRequired,
     text: PropTypes.string.isRequired,
 };
 
