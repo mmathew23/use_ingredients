@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import { Typography, Grid, Chip } from '@mui/material';
 
-const PREFIX = 'IngredientList';
+const PREFIX = 'IngredientChips';
 
 const classes = {
     chip: `${PREFIX}-chip`,
@@ -41,7 +41,7 @@ const StyledGrid = styled(Grid)((
     }
 }));
 
-class IngredientList extends React.Component {
+class IngredientChips extends React.Component {
     
         constructor(props) {
             super(props);
@@ -72,9 +72,9 @@ class IngredientList extends React.Component {
         }
     }
 
-IngredientList.propTypes = {
+IngredientChips.propTypes = {
     ingredients: PropTypes.array.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
-export default (IngredientList);
+export default (IngredientChips);
