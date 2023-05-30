@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import axios from "axios";
 import Picker from "./components/Picker";
@@ -76,6 +76,14 @@ function App() {
   const difficultyOptions = ["Easy", "Medium", "Hard"];
   const cuisineOptions = ["American", "Chinese", "Indian", "Italian", "Mexican", "Thai"];
   const timeOptions = ["Quick", "Medium", "Long"];
+  useEffect(() => {
+    window.onpopstate = (e) => {
+      if (e.state) {
+        setGeneratedRecipe(e.state);
+      }
+    };
+  }, []);
+
 
   const generateRecipe = async () => {
     const payload = {ingredients: ingredients, otherText: otherText}
@@ -95,6 +103,7 @@ function App() {
         payload,
       );
       setGeneratedRecipe(response.data.generated_text.choices[0].message.content);
+      window.history.pushState({...response.data.generated_text.choices[0].message.content}, "");
     } catch (error) {
       console.error("Error generating text", error);
     }

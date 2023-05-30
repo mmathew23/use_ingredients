@@ -16,7 +16,7 @@ def generate_text(query):
         messages.append({"role": "user", "content": f"Time: {query.time}."})
     if query.otherText:
         messages.append({"role": "user", "content": f"Extra Parameters: {query.otherText}."})
-    prompt = """You don't need to confirm that you'd be happy to help, just respond in the following format. And replace anything in square brackets with the appropriate information. There can be many Ingredients and many recipe steps. Ingredients should start with a dash, -, unless it's a subtitle. Recipe should start with a number followed by a period, like 12., unless it's a subheader. Title, Ingredients, Recipe and subheaders must end in a colon, :.
+    prompt = """You don't need to confirm that you'd be happy to help, just respond in the following format. And replace anything in square brackets with the appropriate information. There can be many Ingredients and many recipe steps. Ingredients should start with a dash, -, unless it's a subtitle. Recipe should start with a number followed by a period, like 12., unless it's a subheader. Title, Ingredients, Recipe and subheaders must end in a colon, :. Brackets should never show up in the response.
         Title: [Recipe Title]
         Ingredients:
         [Optional Subheader:]
