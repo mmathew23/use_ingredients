@@ -4,7 +4,7 @@ import axios from "axios";
 import Picker from "./components/Picker";
 import Recipe from "./components/Recipe";
 import InputText from "./components/InputText";
-import IngredientList from "./components/IngredientList";
+import IngredientChips from "./components/IngredientChips";
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import { Container, Button, TextField } from "@mui/material";
@@ -67,7 +67,7 @@ const Root = styled('div')(( { theme }) => (
 
 function App() {
   const [otherText, setOtherText] = useState("");
-  const [generatedText, setGeneratedText] = useState("");
+  const [generatedRecipe, setGeneratedRecipe] = useState({"title": "", "ingredients": {"ingredients_key_order": []}, "recipe": {"recipe_key_order": []} });
   const [loading, setLoading] = useState(false);
   const [ingredients, setIngredients] = useState([]);
   const [difficulty, setDifficulty] = useState(-1);
@@ -77,7 +77,7 @@ function App() {
   const cuisineOptions = ["American", "Chinese", "Indian", "Italian", "Mexican", "Thai"];
   const timeOptions = ["Quick", "Medium", "Long"];
 
-  const generateText = async () => {
+  const generateRecipe = async () => {
     const payload = {ingredients: ingredients, otherText: otherText}
     if (difficulty >= 0) {
       payload.difficulty = difficultyOptions[difficulty]
@@ -94,7 +94,7 @@ function App() {
         `${process.env.REACT_APP_GPT_SERVER}/generate`,
         payload,
       );
-      setGeneratedText(response.data.generated_text.choices[0].message.content);
+      setGeneratedRecipe(response.data.generated_text.choices[0].message.content);
     } catch (error) {
       console.error("Error generating text", error);
     }
@@ -102,6 +102,9 @@ function App() {
   };
 
   const addIngredient = (ingredient) => {
+    // strip white space from beginning and end of ingredient
+    ingredient = ingredient.trim();
+
     if (!ingredients.includes(ingredient) && ingredient !== "" ) {
       setIngredients([...ingredients, ingredient]);
     }
@@ -117,15 +120,15 @@ function App() {
         <Typography variant='h1' className={classes.heading}>Pantry Purge</Typography>
         <InputText text={""} onSubmit={addIngredient} label="Enter Ingredient" buttonText={"Add Ingredient"} className={classes.ingredient_input}/>
         { ingredients.length > 0
-         && <IngredientList className={classes.ingredient_list} ingredients={ingredients} onDelete={removeIngredient} />}
+         && <IngredientChips className={classes.ingredient_list} ingredients={ingredients} onDelete={removeIngredient} />}
         <Picker className={classes.difficulty} items={difficultyOptions} onSelect={setDifficulty} selected={difficulty}/>
         <Picker className={classes.cuisine} items={cuisineOptions} onSelect={setCuisine} selected={cuisine}/>
         <Picker className={classes.time} items={timeOptions} onSelect={setTime} selected={time}/>
-        <InputText className={classes.other} text={otherText} onChange={setOtherText} label="Enter extra info" buttonDisabled noClearOnSubmit onSubmit={generateText} />
-        <Button className={classes.generate} onClick={generateText} variant="contained" size="large" color="primary">Generate Recipe</Button>
+        <InputText className={classes.other} text={otherText} onChange={setOtherText} label="Enter extra info" buttonDisabled noClearOnSubmit onSubmit={generateRecipe} />
+        <Button className={classes.generate} onClick={generateRecipe} variant="contained" size="large" color="primary">Generate Recipe</Button>
 
         {loading && <CircularProgress />}
-        {!loading && generatedText && <Recipe className={classes.recipe} text={generatedText} />}
+        {!loading && generatedRecipe && <Recipe className={classes.recipe} title={generatedRecipe.title} ingredients={generatedRecipe.ingredients} recipe={generatedRecipe.recipe} />}
       </Container>
     </Root>
   );
