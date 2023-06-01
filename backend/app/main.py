@@ -12,7 +12,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 
-origins = ["http://localhost:3000"]
+# origins = [os.getenv("FRONTEND_URL")]
+origins = ["*"]
 app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

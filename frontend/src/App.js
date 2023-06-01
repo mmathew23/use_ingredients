@@ -98,6 +98,12 @@ function App() {
     }
     setLoading(true);
     try {
+      //check if ingredients are empty and if so raise error
+      if (ingredients.length === 0) {
+        // Should handle error on the frontend better
+        // right now user sees no message
+        throw new Error("No ingredients entered");
+      }
       const response = await axios.post(
         `${process.env.REACT_APP_GPT_SERVER}/generate`,
         payload,
