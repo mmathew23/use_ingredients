@@ -8,7 +8,6 @@ def generate_text(query):
         messages = history_prompt(query)
     else:
         messages = initial_recipe_prompt(query)
-    print(len(messages))
     response = ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=messages,

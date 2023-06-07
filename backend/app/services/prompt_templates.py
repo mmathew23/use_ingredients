@@ -115,7 +115,6 @@ def history_prompt(query):
         else:
             messages.append({"role": "user", "content": different_recipe_response_prompt(item)})
     messages.append({"role": "user", "content": different_recipe_response_prompt(query)})
-    print(messages)
     return messages
 
 
