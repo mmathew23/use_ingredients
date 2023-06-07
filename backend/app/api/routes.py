@@ -1,15 +1,7 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 from app.services.gpt_service import generate_text
-from typing import List, Optional
+from app.models.chat import RecipeQuery
 
-
-class RecipeQuery(BaseModel):
-    ingredients: List[str]
-    difficulty: Optional[str]
-    cuisine: Optional[str]
-    time: Optional[str]
-    otherText: Optional[str]
 
 
 router = APIRouter()

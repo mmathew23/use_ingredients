@@ -31,18 +31,9 @@ const StyledStack = styled(Stack)((
 
 class Text extends React.Component {
     render() {
-        const {  title, ingredients, recipe } = this.props;
-        //React Typography Components from ingredients
-        // ingredients is a dictionary with the following keys and values:
-        // {
-        //     "ingredients_key_order": ['title1', title2', ...],
-        //    "ingredients": {
-        //        "title1": ['ingredient1', 'ingredient2', ...],
-        //        "title2": ['ingredient1', 'ingredient2', ...],
-        //        ...
-        //    }
-        // }
-        const ingredientsComponents = ingredients.ingredients_key_order.map((title, index) => {
+        const {title, ingredients, recipe, ingredients_key_order, recipe_key_order} = this.props.recipe;
+
+        const ingredientsComponents = ingredients_key_order.map((title, index) => {
             const ingredientsL = ingredients[title].map((ingredient, subindex) => {
                 return (
                     <Typography key={subindex}>{ingredient}</Typography>
@@ -56,17 +47,7 @@ class Text extends React.Component {
             );
         });
 
-        //React Typography Components from recipe
-        // recipe is a dictionary with the following keys and values:
-        // {
-        //     "recipe_key_order": ['title1', title2', ...],
-        //    "recipe": {
-        //        "title1": ['step1', 'step2', ...],
-        //        "title2": ['step1', 'step2', ...],
-        //        ...
-        //    }
-        // }
-        const recipeComponents = recipe.recipe_key_order.map((title, index) => {
+        const recipeComponents = recipe_key_order.map((title, index) => {
             const recipeL = recipe[title].map((step, index) => {
                 return (
                     <Typography key={index}>{step}</Typography>

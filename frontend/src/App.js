@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { styled } from '@mui/material/styles';
 import axios from "axios";
 import Picker from "./components/Picker";
@@ -67,7 +67,7 @@ const Root = styled('div')(( { theme }) => (
 
 function App() {
   const [otherText, setOtherText] = useState("");
-  const [generatedRecipe, setGeneratedRecipe] = useState({"title": "", "ingredients": {"ingredients_key_order": []}, "recipe": {"recipe_key_order": []} });
+  const [generatedRecipe, setGeneratedRecipe] = useState({"title": "", "ingredients": {}, "ingredients_key_order": [], "recipe": {}, "recipe_key_order": [] });
   const [loading, setLoading] = useState(false);
   const [ingredients, setIngredients] = useState([]);
   const [difficulty, setDifficulty] = useState(-1);
@@ -76,6 +76,8 @@ function App() {
   const difficultyOptions = ["Easy", "Medium", "Hard"];
   const cuisineOptions = ["American", "Chinese", "Indian", "Italian", "Mexican", "Thai"];
   const timeOptions = ["Quick", "Medium", "Long"];
+  const recipe_history = useRef([]);
+
   useEffect(() => {
     window.onpopstate = (e) => {
       if (e.state) {
@@ -96,6 +98,9 @@ function App() {
     if (time >= 0) {
       payload.time = timeOptions[time]
     }
+    if (recipe_history.current.length > 0) {
+      payload.history = { "messages": recipe_history.current };
+    }
     setLoading(true);
     try {
       //check if ingredients are empty and if so raise error
@@ -110,6 +115,8 @@ function App() {
       );
       setGeneratedRecipe(response.data.generated_text.choices[0].message.content);
       window.history.pushState({...response.data.generated_text.choices[0].message.content}, "");
+      recipe_history.current.push({...payload, history: null});
+      recipe_history.current.push(response.data.generated_text.choices[0].message.content);
     } catch (error) {
       console.error("Error generating text", error);
     }
@@ -143,7 +150,7 @@ function App() {
         <Button className={classes.generate} onClick={generateRecipe} variant="contained" size="large" color="primary">Generate Recipe</Button>
 
         {loading && <CircularProgress />}
-        {!loading && generatedRecipe && <Recipe className={classes.recipe} title={generatedRecipe.title} ingredients={generatedRecipe.ingredients} recipe={generatedRecipe.recipe} />}
+        {!loading && generatedRecipe && <Recipe className={classes.recipe} recipe={generatedRecipe} />}
       </Container>
     </Root>
   );
