@@ -1,5 +1,86 @@
 from .utils import unparse_recipe
 
+RECIPE_FUNC = "create_food_from_recipe"
+generate_recipe_function_prompt = [
+    {
+        "name": RECIPE_FUNC,
+        "description": "Parse the recipe from the json output.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "The title of the recipe."
+                },
+                "ingredients": {
+                    "type": "array",
+                    "description": "The ingredients of the recipe structured as a list of sub-ingredients.",
+                    "items": {
+                        "type": "object",
+                        "description": "A sub-ingredient list.",
+                        "properties": {
+                            "title": {
+                                "type": ["string", "null"],
+                                "description": "The title of the ingredient list. If only one ingredient list, the title can be null, but if more than one it should have a descriptive name.",
+                            },
+                            "list": {
+                                "type": "array",
+                                "description": "The list of ingredients.",
+                                "items": {
+                                    "type": "object",
+                                    "description": "An ingredient with quantity, unit, ingredient, and modifier.",
+                                    "properties": {
+                                        "quantity": {"type": ["number", "string"], "description": "The quantity of the ingredient."},
+                                        "unit": {"type": "string", "description": "The unit of the ingredient."},
+                                        "ingredient": {"type": "string", "description": "The ingredient."},
+                                        "modifier": {"type": "string", "description": "The modifier of the ingredient."},
+                                    },
+                                    "required": ["ingredient"],
+                                    "additionalProperties": False,
+                                    "minProperties": 2,
+                                },
+                                "minItems": 3,
+                            },
+                        },
+                        "required": ["list", "title"],
+                        "additionalProperties": False,
+                    },
+                    "minItems": 1,
+                },
+                "recipe": {
+                    "type": "array",
+                    "description": "The steps of the recipe structured as a list of sub-recipes steps corresponding to sub-ingredient list.",
+                    "items": {
+                        "type": "object",
+                        "description": "A sub-recipe list of steps.",
+                        "properties": {
+                            "title": {
+                                "type": ["string", "null"],
+                                "description": "The title of the sub-recipe step list. If only one recipe list, the title can be null, but if more than one it should have a descriptive name.",
+                            },
+                            "list": {
+                                "type": "array",
+                                "description": "The list of sub-recipe steps.",
+                                "items": {
+                                    "type": "string",
+                                    "description": "The next direction in the recipe."
+                                },
+                                "minItems": 2,
+                            },
+                        },
+                        "required": ["list", "title"],
+                        "additionalProperties": False,
+                        "minProperties": 1,
+                    },
+                    "minItems": 1,
+                },
+            },
+            "required": ["title", "ingredients", "recipe"],
+            "additionalProperties": False,
+        }
+    }
+]
+
 
 def query_prompt(query):
     user_prompt = []
@@ -20,102 +101,113 @@ def initial_recipe_prompt(query):
                 {"role": "user", "content": None}]
     user_prompt = ["I'm going to supply you with ingredients I want to use up. Please respond with the tastiest recipe you can think of, but it needs to use all the ingredients I specify and satisfy the other constraints I give you."]
     user_prompt.append(query_prompt(query))
-    prompt = """You don't need to confirm that you'd be happy to help, just respond in the following format, and don't say you can help. Always respond in the below format, even if there is only one ingredient asked to use. And replace anything in square brackets with the appropriate information. There can be many Ingredients and many recipe steps. Ingredients should start with a dash, -, unless it's a subtitle. Recipe should start with a number followed by a period, like 12., unless it's a subheader. Title, Ingredients, Recipe and subheaders must end in a colon, :. Brackets should never show up in the response.
-        Title: [Recipe Title]
-        Ingredients:
-        [Optional Subheader:]
-        - [Quantity1] [Unit1] [Ingredient1] [ExtraInfo1]
-        - [Quantity2] [Unit2] [Ingredient2] [ExtraInfo2]
-        
-        Recipe:
-        [Optional Subheader:]
-        1. [Step1]
-        2. [Step2]
-        3. [Step3]
-        
-        Here is an example of a query and valid response separated by a line break:
-        Ingredients to use: chicken, rice, broccoli
+    prompt = """The recipes should be robust and delicious. The ingredients should be listed in order they appear in the recipe steps. There should not be an ingredient in the recipe steps that isn't listed in the ingredient list. The recipe steps should be concise but descriptive and using proper grammar. The recipe steps should be listed in order they should be performed. The sub ingredient titles and sub recipe titles shoudl be unique.
+        Your response should be in JSON format because I am going to call a function to bring the recipe to life.
+        Here are some examples to help guide your response.
+        ---User---
+        I want to use the following ingredients: chicken, rice, broccoli
         Difficulty: Easy
         Cuisine: Italian
         Time: Quick
         Extra Parameters: I'm allergic to peanuts
-
-        Title: Spaghetti Carbonara
-        Ingredients:
-        - 12 oz. pancetta, cut into 1/4" pieces 
-        - 1 tbsp. kosher salt
-        - 10 cups water
-        - 1 lb. spaghetti
-        - 5 large egg yolks
-        - l large egg
-        - 4 oz. finely grated Peco Romano (about 2 cups)
-        - 1/2 tsp. freshly ground black pepper
-        Recipe:
-        1. In a medium skillet over medium heat, cook pancetta, stirring occasionally, until golden brown and crispy, 20 to 25 minutes. Transfer pancetta to a paper towel-lined plate.
-        2. Meanwhile, in a large pot, combine salt and 10 cups water and bring to a boil. Cook spaghetti, stirring occasionally, until al dente, 8 to 10 minutes; reserve 1/2 cup pasta water.
-        3. While pasta cooks, in a large heatproof bowl, whisk egg yolks, egg, and cheese until just combined.
-        4. Immediately transfer spaghetti to egg mixture. Add pancetta and 1/4 cup pasta water and stir, adding 2 to 4 tablespoons more pasta water if sauce seems too thick, until cheese is melted and sauce is smooth; season with pepper.
+        ---Assistant---
+        {"title": "Spaghetti Carbonara",
+        "ingredients": [{"title": null,
+                        "list": [{"quantity": 12, "unit": "oz.", "ingredient": "pancetta", "modifier": "cut into 1/4" pieces"},
+                                {"quantity": 1, "unit": "tbsp.", "ingredient": "kosher salt", "modifier": null},
+                                {"quantity": 10, "unit": "cups", "ingredient": "water", "modifier": null}, 
+                                {"quantity": 1, "unit": "lb.", "ingredient": "spaghetti", "modifier": null},
+                                {"quantity": 5, "unit": null, "ingredient": "large egg yolks", "modifier": null},
+                                {"quantity": 1, "unit": null, "ingredient": "large egg", "modifier": null},
+                                {"quantity": 4, "unit": "oz.", "ingredient": "Peco Romano", "modifier": "finely grated (about 2 cups)"},
+                                {"quantity": "1/2", "unit": "tsp.", "ingredient": "black pepper", "modifier": "freshly ground"}
+                        ],
+                        },],
+        "recipe": [{"title": null,
+                    "list": ["In a medium skillet over medium heat, cook pancetta, stirring occasionally, until golden brown and crispy, 20 to 25 minutes. Transfer pancetta to a paper towel-lined plate.",
+                            "Meanwhile, in a large pot, combine salt and 10 cups water and bring to a boil. Cook spaghetti, stirring occasionally, until al dente, 8 to 10 minutes; reserve 1/2 cup pasta water.",
+                            "While pasta cooks, in a large heatproof bowl, whisk egg yolks, egg, and cheese until just combined.",
+                            "Immediately transfer spaghetti to egg mixture. Add pancetta and 1/4 cup pasta water and stir, adding 2 to 4 tablespoons more pasta water if sauce seems too thick, until cheese is melted and sauce is smooth; season with pepper."],
+                    },],
+        }
 
         Here is another example of a query and valid response seperated by a line break:
+        ---User---
         Ingredients to use: ground beef, onion
         Difficulty: Medium
         Cuisine: American
+        ---Assistant---
+        {"title": "Gourmet Patty Melt",
+        "ingredients": [{"title": "Burger",
+                        "list": [{"quantity": 1, "unit": "lb.", "ingredient": "ground beef", "modifier": "70/30 fat blend"},
+                                {"quantity": 1, "unit": null, "ingredient": "onion", "modifier": null},
+                                {"quantity": 1, "unit": "tbsp.", "ingredient": "olive oil", "modifier": null},
+                                {"quantity": 1, "unit": "tbsp.", "ingredient": "butter", "modifier": null},
+                                {"quantity": 1, "unit": "tbsp.", "ingredient": "sea salt", "modifier": null},
+                                {"quantity": 1, "unit": "tsp.", "ingredient": "black pepper", "modifier": null},
+                                {"quantity": 1, "unit": "tsp.", "ingredient": "sugar", "modifier": null},
+                                {"quantity": 1, "unit": "tsp.", "ingredient": "Worcestershire sauce", "modifier": null},
+                                {"quantity": 1, "unit": "tsp.", "ingredient": "balsamic vinegar", "modifier": null},
+                                {"quantity": 4, "unit": "pieces", "ingredient": "thick cut bacon", "modifier": null},
+                                {"quantity": 4, "unit": "slices", "ingredient": "American cheese", "modifier": null}
+                        ],
+                        },
+                        {"title": "Burger Sauce",
+                        "list": [{"quantity": 1, "unit": "tsp.", "ingredient": "chives", "modifier": null},
+                                {"quantity": 1, "unit": null, "ingredient": "pickle", "modifier": null},
+                                {"quantity": 3, "unit": "tbsp.", "ingredient": "ketchup", "modifier": null},
+                                {"quantity": 4, "unit": "tbsp.", "ingredient": "mayonnaise", "modifier": null},
+                                {"quantity": 1, "unit": "tsp.", "ingredient": "Dijon mustard", "modifier": null},
+                                {"quantity": "1/2", "unit": "tsp.", "ingredient": "hot sauce", "modifier": null},
+                                {"quantity": "1/4", "unit": "tsp.", "ingredient": "sea salt", "modifier": null},
+                                {"quantity": "1/4", "unit": "tsp.", "ingredient": "black pepper", "modifier": null},
 
-        Title: Gourmet Patty Melt
-        Ingredients:
-        Burger:
-        - 1 lb. ground beef (70/30)
-        - 1 onion
-        - 1 tbsp. olive oil
-        - 1 tbsp. butter
-        - 1 tbsp. sea salt
-        - 1 tsp. black pepper
-        - 1 tsp. sugar
-        - 1 tsp. Worcestershire sauce
-        - 1 tsp. balsamic vinegar
-        - 4 pieces thick cut bacon
-        - 4 slices American cheese
-        Burger Sauce:
-        - 1 tsp chives
-        - 1 pickle
-        - 3 tbsp. ketchup
-        - 4 tbsp. Mayonnaise
-        - 1 tsp. Dijon mustard
-        - 1/2 tsp. hot sauce
-        - 1/4 tsp sea salt
-        - 1/4 tsp black pepper
-        Recipe:
-        Burger:
-        1. Form beef into evenly sized meatballs approximately 120 grams each and set aside.
-        2. Thinly slice onion and carmelize with olive oil, butter, sea salt, black pepper, and sugar on mediem heat for 30 minutes.
-        3. Once onions are carmelized, add Worcestershire sauce and balsamic vinegar cook for another 5 minutes. Remove from heat and set aside.
-        4. Cook bacon in a skillet over medium heat until crispy. Remove from heat, set aside, but leave some bacon fat to cook the patties.
-        5. Increase heat of the pan until almost smoky, and add formed meatballs.
-        6. Smash down meatballs with spatula and season with salt and pepper. Flip after 1.5 mins. You want a nicley carmelized crust on both sides.
-        7. Once flipped add cheese and allow to melt for 30 seconds to 1 minute. Set patties aside.
-        8. Assemble burger on bun with sauce, onions, bacon, and patties.
-        Burger Sauce:
-        1. Mince chives, and finely dice pickle. Set aside in mixing bowl.
-        2. Mix ketchup, mayonnaise, Dijon mustard, hot sauce, sea salt, and black pepper in mixing bowl with chives and pickles.
+        "recipe": [{"title": null,
+                    "list": ["Form beef into evenly sized meatballs approximately 120 grams each and set aside.",
+                            "Thinly slice onion and add to a pan with olive oil and butter. Cook on medium heat until caramelized, about 20 minutes. Set aside.",
+                            "In a bowl, combine salt, pepper, sugar, Worcestershire sauce, and balsamic vinegar. Mix well.",
+                            "Add meatballs to bowl and mix until well combined. Form into patties and set aside.",
+                            "Cook bacon in a pan until crispy. Set aside.",
+                            "Cook patties in a pan on medium heat until desired doneness, about 4 minutes per side for medium.",
+                            "Add cheese to patties and cook until melted.",
+                            "Assemble patty melt by placing patty on a slice of bread, topping with caramelized onions, bacon, and burger sauce. Top with another slice of bread and enjoy!"],
+                    },
+                    {"title": "Burger Sauce",
+                    "list": ["Mince chives, and finely dice pickle. Set aside in mixing bowl.",
+                             "Mix ketchup, mayonnaise, Dijon mustard, hot sauce, sea salt, and black pepper in mixing bowl with chives and pickles."],
+                    }
+            ],
+        }
     """
+
     user_prompt.append(prompt)
     messages[-1]["content"] = "\n".join(user_prompt)
-    return messages
+    return {
+        'messages': messages,
+        'functions': generate_recipe_function_prompt,
+        'function_call': {'name': RECIPE_FUNC}
+    }
 
 
 def history_prompt(query):
+    # Unclear if I need to show the history of the chat with functions and function_call
+    # Will currently not show them in hopes of saving some tokens
     messages = None
     for i, item in enumerate(query.history.messages):
         if i == 0:
-            messages = initial_recipe_prompt(item)
+            messages = initial_recipe_prompt(item)['messages']
         elif i % 2 == 1:
             # response prompt in format of app.models.chat.RecipeResponse
-            prompt_response = unparse_recipe(item) 
+            prompt_response = item.json()
             messages.append({"role": "assistant", "content": prompt_response})
         else:
             messages.append({"role": "user", "content": different_recipe_response_prompt(item)})
     messages.append({"role": "user", "content": different_recipe_response_prompt(query)})
-    return messages
+    return {
+        'messages': messages,
+        'functions': generate_recipe_function_prompt,
+        'function_call': {'name': RECIPE_FUNC}
+    }
 
 
 def different_recipe_response_prompt(query):

@@ -31,31 +31,43 @@ const StyledStack = styled(Stack)((
 
 class Text extends React.Component {
     render() {
-        const {title, ingredients, recipe, ingredients_key_order, recipe_key_order} = this.props.recipe;
+        const {title, ingredients, recipe } = this.props.recipe;
+        //unpack this.props.recipe
+        // title is a string
+        // recipe is an array of objects
+        // each object has a title and an array of steps named list
 
-        const ingredientsComponents = ingredients_key_order.map((title, index) => {
-            const ingredientsL = ingredients[title].map((ingredient, subindex) => {
+
+        // ingredients is an array of objects
+        // each object has a title and an array of ingredients named list
+        // iterate through each ingredient and create a stylestack and typography for each  
+        console.log('temp', this.props.recipe  );
+        console.log('title', this.props.recipe.title);
+        console.log('recipe', this.props.recipe.recipe);
+        console.log('ingredients', this.props.recipe.ingredients);
+        const ingredientsComponents = ingredients.map((subIngredient, index) => {
+            const ingredientsL = subIngredient.list.map((ingredient, subindex) => {
                 return (
-                    <Typography key={subindex}>{ingredient}</Typography>
+                    <Typography key={subindex}>{ingredient.quantity} {ingredient.unit} {ingredient.ingredient} {ingredient.modifier}</Typography>
                 );
             });
             return (
                 <StyledStack key={index}>
-                    {title !== "unspecified" && <Typography variant="h6">{title}</Typography>}
+                    {subIngredient.title !== null && <Typography variant="h6">{subIngredient.title}</Typography>}
                     <Typography>{ingredientsL}</Typography>
                 </StyledStack>
             );
         });
 
-        const recipeComponents = recipe_key_order.map((title, index) => {
-            const recipeL = recipe[title].map((step, index) => {
+        const recipeComponents = recipe.map((subRecipe, index) => {
+            const recipeL = subRecipe.list.map((step, index) => {
                 return (
-                    <Typography key={index}>{step}</Typography>
+                    <Typography key={index}>{index+1}. {step}</Typography>
                 );
             });
             return (
                 <StyledStack key={index}>
-                    {title !== "unspecified" && <Typography variant="h6">{title}</Typography>}
+                    {subRecipe.title !== null && <Typography variant="h6">{title}</Typography>}
                     <Typography>{recipeL}</Typography>
                 </StyledStack>
             );

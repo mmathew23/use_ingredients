@@ -67,7 +67,7 @@ const Root = styled('div')(( { theme }) => (
 
 function App() {
   const [otherText, setOtherText] = useState("");
-  const [generatedRecipe, setGeneratedRecipe] = useState({"title": "", "ingredients": {}, "ingredients_key_order": [], "recipe": {}, "recipe_key_order": [] });
+  const [generatedRecipe, setGeneratedRecipe] = useState({"title": "", "ingredients": [], "recipe": []});
   const [loading, setLoading] = useState(false);
   const [ingredients, setIngredients] = useState([]);
   const [difficulty, setDifficulty] = useState(-1);
@@ -101,6 +101,7 @@ function App() {
     if (recipe_history.current.length > 0) {
       payload.history = { "messages": recipe_history.current };
     }
+    console.log('payload', payload);
     setLoading(true);
     try {
       //check if ingredients are empty and if so raise error
@@ -113,10 +114,17 @@ function App() {
         `${process.env.REACT_APP_GPT_SERVER}/generate`,
         payload,
       );
-      setGeneratedRecipe(response.data.generated_text.choices[0].message.content);
-      window.history.pushState({...response.data.generated_text.choices[0].message.content}, "");
+      //check in function_call is not null
+      const message = response.data.generated_text.choices[0].message 
+      if (message.function_call === null) {;
+        throw new Error("No recipe generated");
+      }
+      const recipe = message.function_call.arguments;
+      // console.log(recipe);
+      setGeneratedRecipe(recipe);
+      window.history.pushState({...recipe}, "");
       recipe_history.current.push({...payload, history: null});
-      recipe_history.current.push(response.data.generated_text.choices[0].message.content);
+      recipe_history.current.push(recipe);
     } catch (error) {
       console.error("Error generating text", error);
     }

@@ -17,10 +17,8 @@ class RecipeQuery(BaseModel):
 
 class RecipeResponse(BaseModel):
     title: str
-    ingredients: Dict[str, List[str]]
-    ingredients_key_order: List[str]
-    recipe: Dict[str, List[str]]
-    recipe_key_order: List[str]
+    ingredients: List[Dict[str, Union[Union[str, None], List[Dict[str, Union[str, float, int, None]]]]]]
+    recipe: List[Dict[str, Union[Union[str, None], List[str]]]]
 
 
 ChatHistory.update_forward_refs()
